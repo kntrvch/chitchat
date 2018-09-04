@@ -1,0 +1,10 @@
+html
+  head
+    title= thread.code
+  body
+    ul
+      each message in thread.messages
+        li
+          strong= message.author
+          small= message.date
+          p= message.message
