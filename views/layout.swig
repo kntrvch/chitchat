@@ -90,18 +90,6 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
-          <!--<ul class="navbar-nav">
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="themes">Menu <span class="caret"></span></a>
-              <div class="dropdown-menu" aria-labelledby="">
-                <a class="dropdown-item" href="">1</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="">2</a>
-                <a class="dropdown-item" href="">3</a>
-              </div>
-            </li>
-          </ul>-->
-
           <ul class="nav navbar-nav ml-auto">
             <li class="nav-item">
               <a id="saveThreadButton_" href="/new" class="btn btn-success" >New</a>

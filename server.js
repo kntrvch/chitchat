@@ -36,7 +36,6 @@ app.use(session({
 }));
 
 app.engine('swig', swig.renderFile);
-//app.set('view engine', 'pug');
 app.set('view engine', 'swig');
 
 var sess;
@@ -61,9 +60,7 @@ io.sockets.on('connection', function (socket) {
     socket.on('send message', function (data) {
         data.author = socket.username;
         data.threadCode = sess.threadCode || generateThreadCode();
-        //console.log(data);
         sess.messages.push(data);
-        //console.log(sess);
         io.sockets.emit('new message', { author: socket.username, message: data.message, date: data.date });
     });
 
@@ -75,36 +72,9 @@ io.sockets.on('connection', function (socket) {
             code: sess.threadCode
         });
         newMessage.save(function (err, newMessage) {
-            //console.log(newMessage);
             if (err) return console.error(err);
-            // Thread.findOneAndUpdate({"code": sess.threadCode}, { $push: { messages: newMessage } }, { new: true }, function(err, newThread) {
-            //     console.log(newThread);
-            //     if (err) {
-            //         return res.status(404).json(err);
-            //     }
-            //     io.sockets.emit('new message', {author: newMessage.author, message: newMessage.message, date: newMessage.date});
-            // });
 
             Thread.findOneAndUpdate({ "code": sess.threadCode }, { $push: { messages: newMessage, trends: Date.now() } }, { new: true }).then((newThread) => {
-                console.log(sess);
-                console.log(newThread);
-
-
-                //     var toneParams = {
-                //     'tone_input': { 'text': newMessage.message },
-                //     'content_type': 'application/json', 
-                //     'sentences': false
-                //   };
-
-                //   toneAnalyzer.tone(toneParams, function (error, analysis) {
-                //     if (error) {
-                //       console.log(error);
-                //     } else { 
-                //     getToneIcon(analysis.document_tone.tones[0].tone_id);
-                //       console.log(JSON.stringify(analysis, null, 2));
-                //       io.sockets.emit('tone update', {author: newMessage.author, message: newMessage.message, date: newMessage.date});
-                //     }
-                //   });
 
                 utterances = [
                     {
@@ -120,7 +90,6 @@ io.sockets.on('connection', function (socket) {
                     if (error) {
                         console.log(error);
                     } else {
-                        console.log(JSON.stringify(analysis, null, 2));
                         io.sockets.emit('new message', {
                             author: newMessage.author,
                             message: newMessage.message,
@@ -129,10 +98,6 @@ io.sockets.on('connection', function (socket) {
                         });
                     }
                 }); 0;
-
-
-
-
 
                 if (sess.ai) {
                     setTimeout(function () {
@@ -190,7 +155,6 @@ io.sockets.on('connection', function (socket) {
             usernames.push(socket.username);
             updateUsernames();
         }
-        //console.log(usernames);
     });
 
     socket.on('disconnect', function (data) {
@@ -202,14 +166,10 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('typing', function (data, callback) {
-
-        console.log(data.username + " is typing...");
         io.sockets.emit('typing', { user: data.username });
     });
 
     socket.on('not typing', function (data, callback) {
-
-        console.log(data.username + " stopped typing...");
         io.sockets.emit('not typing', { user: data.username });
     });
 
@@ -229,39 +189,9 @@ io.sockets.on('connection', function (socket) {
 
 app.get('/watson', function (req, res) {
 
-    // watsonAssistant.message({
-    //     workspace_id: WORKSPACE_ID,
-    //     input: {'text': 'what is my order status?'},
-    //     headers: {
-    //       'Custom-Header': 'custom',
-    //       'Accept-Language': 'custom'
-    //     }
-    //   },  function(err, result, response) {
-    //     if (err)
-    //       console.log('error:', err);
-    //     else
-    //       console.log(JSON.stringify(result, null, 2));
-    //   });
-
-    //   var text = 'Team, I know that times are tough! Product sales have been disappointing for the past three quarters. We have a competitive product, but we need to do a better job of selling it!'
-
-    //   var toneParams = {
-    //     'tone_input': { 'text': text },
-    //     'content_type': 'application/json'
-    //   };
-
-    //   toneAnalyzer.tone(toneParams, function (error, analysis) {
-    //     if (error) {
-    //       console.log(error);
-    //     } else { 
-    //       console.log(JSON.stringify(analysis, null, 2));
-    //     }
-    //   }); 0;
-
-
     utterances = [
         {
-            text: "yo, there's a problem with this shit!"
+            text: "we have a problem!"
         }
     ];
 
@@ -288,7 +218,6 @@ app.get('/', function (req, res) {
 
     Thread.find({}, function (err, threads) {
         if (err) return console.error(err);
-        //res.sendFile(__dirname + '/index.html');
         res.render('index', {
             threads: threads,
             title: 'chitchat'
@@ -300,25 +229,10 @@ app.get('/', function (req, res) {
 
 app.get('/new', function (req, res) {
 
-    // Message.remove({})
-    //     .then(() => Message.insertMany(sess.messages))
-    //     .then((msgs) => {
-    //         console.log(msgs);
-    //         var newThread = new Thread({ 
-    //             messages: msgs, 
-    //             code: sess.threadCode
-    //         });
-    //         newThread.save(function (err, newThread) {
-    //             if (err) return console.error(err);
-    //             res.status(200).json({code: newThread.code});
-    //         });
-    //     });
-
     var newThread = new Thread({
     });
     newThread.save(function (err, newThread) {
         if (err) return console.error(err);
-        //res.status(200).json({ code: newThread.code });
         res.redirect('/' + newThread.code);
     });
 });
@@ -340,23 +254,10 @@ app.get('/:code', function (req, res, next) {
         });
     }).catch((err) => {
         if (err) {
-            //console.log(err);
             res.redirect('/');
-            //return res.status(404).json(err);
         }
     });
-    /*
-    Message.find({
-        'threadCode': codeParam
-    }).then((messages) => {
-        console.log(messages);
-        res.render('single-thread', {messages: messages});
-    }).catch((err) => {
-        if (err) {
-            return res.status(404).json(err);
-        }
-    });
-    */
+
 });
 
 function generateThreadCode() {
@@ -369,14 +270,7 @@ function generateThreadCode() {
     return text;
 }
 
-// function getToneIcon(tone) {
-//     if(tone == ) {
-
-//     }
-// }
-
 function getFormattedTones(toneArr) {
-    console.log(toneArr);
     var toneStr = "";
     toneArr.forEach(function (tone, i) {
         toneStr += tone.tone_name + ", ";
